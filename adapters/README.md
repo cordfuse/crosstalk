@@ -1,6 +1,6 @@
 # adapters — the wake, outside the protocol
 
-swarmpost has no daemon. Something still has to make an agent *check its inbox*
+crosstalk has no daemon. Something still has to make an agent *check its inbox*
 — but per **SPEC §2**, that lives **outside the protocol**, never in it. A
 poller baked into the wire would be a resident process, out of scope
 permanently. These adapters are the legal escape hatches: pick per runtime,
@@ -11,7 +11,7 @@ swap freely, and the protocol never depends on any of them.
 The behavior is universal protocol, defined once in `SPEC.md`; the mesh's
 `manifest.md` names the version (`spec: "0.5"`). Every agent — Claude, Codex,
 agy, gemini, opencode, a human — just needs a **one-liner** in its own
-instruction file: its handle + "read `manifest.md` and follow the swarmpost
+instruction file: its handle + "read `manifest.md` and follow the crosstalk
 protocol." Because each runtime reads its own instruction file, **this works for
 all of them today.** It's nearly free (the agent is already running) — "the
 agent's own liveness is the runtime." **Start here for every runtime.**

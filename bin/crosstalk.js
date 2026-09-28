@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// swarmpost / sp — thin CLI over git-first markdown messaging (§14).
+// crosstalk / sp — thin CLI over git-first markdown messaging (§14).
 // The protocol works with bare git + an editor; this is sugar. Identity, not
 // behavior: it never launches or supervises an agent.
 
@@ -7,34 +7,34 @@ import { readFileSync } from 'fs';
 import { paths } from '../src/mesh.js';
 import * as ops from '../src/ops.js';
 
-const USAGE = `swarmpost — git-first, markdown-first agent messaging
+const USAGE = `crosstalk — git-first, markdown-first agent messaging
 
-  swarmpost init [--remote <url>]    create the orphan mail branch + manifest (--remote wires origin)
-  swarmpost join <handle> [--provider p --model m --argv a,b --env KEY1,KEY2 --notes "..."]
+  crosstalk init [--remote <url>]    create the orphan mail branch + manifest (--remote wires origin)
+  crosstalk join <handle> [--provider p --model m --argv a,b --env KEY1,KEY2 --notes "..."]
                                      create your mailbox + roster entry (+ optional §5.1 profile)
-  swarmpost whoami                   print the handle you're acting as
-  swarmpost send <to> [flags]        send a message (to = handle, or a,b,c fan-out)
-  swarmpost inbox [--all]            list your mail (fetches first); --all includes read
-  swarmpost status                   one-call dashboard: unread, threads, roster (no receipt)
-  swarmpost thread <id>              full threaded transcript across all mailboxes (no receipt)
-  swarmpost read <id|--all>          print + receipt (fetches first; new/ -> cur/)
-  swarmpost wait [--reply-to id|--kind k|--from h|--thread id] [--timeout s] [--interval s]
+  crosstalk whoami                   print the handle you're acting as
+  crosstalk send <to> [flags]        send a message (to = handle, or a,b,c fan-out)
+  crosstalk inbox [--all]            list your mail (fetches first); --all includes read
+  crosstalk status                   one-call dashboard: unread, threads, roster (no receipt)
+  crosstalk thread <id>              full threaded transcript across all mailboxes (no receipt)
+  crosstalk read <id|--all>          print + receipt (fetches first; new/ -> cur/)
+  crosstalk wait [--reply-to id|--kind k|--from h|--thread id] [--timeout s] [--interval s]
                                      block until matching mail arrives, then print it (bounded; no receipt)
-  swarmpost reply <id> [flags]       reply to a message
-  swarmpost claim <id> [flags]       claim a task (kind: claim)
-  swarmpost ack <id>                 acknowledge a message
-  swarmpost dead [<id>] [-m <why>]   quarantine a message to inbox/dead/ (or list the box); -m bounces an error to the sender
-  swarmpost sync                     fetch/rebase/push the mail branch
-  swarmpost flush                    commit + push mail an agent wrote but couldn't (run unsandboxed)
-  swarmpost profile <handle> [--print-cmd]   show profile; --print-cmd emits (never runs) the launch command
+  crosstalk reply <id> [flags]       reply to a message
+  crosstalk claim <id> [flags]       claim a task (kind: claim)
+  crosstalk ack <id>                 acknowledge a message
+  crosstalk dead [<id>] [-m <why>]   quarantine a message to inbox/dead/ (or list the box); -m bounces an error to the sender
+  crosstalk sync                     fetch/rebase/push the mail branch
+  crosstalk flush                    commit + push mail an agent wrote but couldn't (run unsandboxed)
+  crosstalk profile <handle> [--print-cmd]   show profile; --print-cmd emits (never runs) the launch command
 
 send/reply/claim flags:
   --kind <k>   --subject <s>   --thread <id>   --ref <id> (repeatable)
   --reply-to <id>   --priority <low|normal|high>   --provider <p>   --model <m>
   -m <body>    -f <file.md | -=stdin>
 kinds: task  claim  review-request  review-complete  ack  error  info  question  (+ any the mesh manifest adds)
-global: --json   |   --mesh <dir> / SWARMPOST_MESH (run from anywhere, e.g. inside a code repo)
-        identity via SWARMPOST_HANDLE or .swarmpost/config`;
+global: --json   |   --mesh <dir> / CROSSTALK_MESH (run from anywhere, e.g. inside a code repo)
+        identity via CROSSTALK_HANDLE or .crosstalk/config`;
 
 function parse(argv) {
   const flags = { _: [], ref: [] };
@@ -105,15 +105,15 @@ async function main() {
   const verb = flags._[0];
   if (!verb || flags.help) { process.stdout.write(USAGE + '\n'); process.exit(verb ? 0 : 1); }
 
-  // `sp init --remote <url>` can bootstrap a fresh repo (clear intent). A bare
-  // `sp init` in a non-repo stays an error, but with a pointer to the fix.
+  // `ct init --remote <url>` can bootstrap a fresh repo (clear intent). A bare
+  // `ct init` in a non-repo stays an error, but with a pointer to the fix.
   let createdRepo = false;
   if (verb === 'init' && flags.remote) createdRepo = ops.ensureGitRepo(flags.mesh);
   let p;
   try {
     p = paths(flags.mesh);
   } catch (e) {
-    if (verb === 'init') throw new Error(`${e.message}\n  or run 'sp init --remote <url>' to create a fresh repo here`);
+    if (verb === 'init') throw new Error(`${e.message}\n  or run 'ct init --remote <url>' to create a fresh repo here`);
     throw e;
   }
 
@@ -133,7 +133,7 @@ async function main() {
         provider: flags.provider, model: flags.model,
         argv: flags.argv, env: flags.env, notes: flags.notes,
       });
-      out(flags, `Joined as '${r.handle}'. (identity saved to .swarmpost/config)`, r); break;
+      out(flags, `Joined as '${r.handle}'. (identity saved to .crosstalk/config)`, r); break;
     }
     case 'whoami': {
       const r = ops.who(p);
@@ -191,8 +191,8 @@ async function main() {
       if (flags.printCmd) out(flags, r.cmd, r); else out(flags, r.text, r); break;
     }
     default:
-      process.stderr.write(`swarmpost: unknown verb '${verb}'\n\n${USAGE}\n`); process.exit(1);
+      process.stderr.write(`crosstalk: unknown verb '${verb}'\n\n${USAGE}\n`); process.exit(1);
   }
 }
 
-main().catch((err) => { process.stderr.write(`swarmpost: ${err.message}\n`); process.exit(1); });
+main().catch((err) => { process.stderr.write(`crosstalk: ${err.message}\n`); process.exit(1); });

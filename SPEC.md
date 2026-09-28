@@ -1,4 +1,4 @@
-# swarmpost — SPEC v0.5.0-draft
+# crosstalk — SPEC v0.5.0-draft
 
 Git-first, markdown-first, agent-agnostic messaging. The repo is the medium; the
 protocol is the product. Any agent that can run `git` and read markdown can
@@ -6,7 +6,7 @@ participate — and so can a human with an editor. No SDK, no server, no daemon 
 ever. Delivery is 100% inference-driven: the agent's own reasoning loop is the
 scheduler.
 
-**Lineage:** swarmpost is the successor to — and replacement for —
+**Lineage:** crosstalk is the successor to — and replacement for —
 **Crosstalk** (`cordfuse/crosstalk`, archived). It keeps Crosstalk's wire (git
 as attributed record, one markdown file per message, humans and agents as equal
 actors) and deletes its runtime (supervisor process, recursive spawn, concierge
@@ -39,7 +39,7 @@ here as spec law, not reimplemented as machinery.
   delivery model. If a feature requires a resident process, it is out of scope
   permanently. Escape hatches that stay legal because they live *outside* the
   protocol: human-cadence polling, a cron/systemd timer running
-  `swarmpost sync`, or the relay's own CI (e.g. an Action on push to `mail`)
+  `crosstalk sync`, or the relay's own CI (e.g. an Action on push to `mail`)
   notifying or spawning workers — the relay's daemon, not ours. The protocol
   never depends on any of them.
 - **No launcher, no supervisor.** The CLI never starts, configures, or
@@ -77,11 +77,11 @@ mail (orphan branch root)
 ```
 
 - Implementations SHOULD materialize `mail` as a hidden worktree (e.g.
-  `.swarmpost/worktree/`) so the developer's working directory never switches
+  `.crosstalk/worktree/`) so the developer's working directory never switches
   branches.
 - **There is no `tmp/` on the wire.** Composition staging is a local, untracked
-  concern (e.g. `.swarmpost/tmp/`). Maildir uses `tmp/` for filesystem-level
-  atomicity; swarmpost does not need it — **the commit is the atomicity unit**
+  concern (e.g. `.crosstalk/tmp/`). Maildir uses `tmp/` for filesystem-level
+  atomicity; crosstalk does not need it — **the commit is the atomicity unit**
   (§9). A message exists on the wire wholly or not at all.
 - Empty dirs are maintained with `.gitkeep`.
 - Custom refs (`refs/mail/<handle>`) are explicitly **parked for v2** — see §13.
@@ -94,7 +94,7 @@ human) reads to learn the dialect:
 ```markdown
 ---
 spec: "0.5"
-mesh: swarmpost
+mesh: crosstalk
 kinds: [task, claim, review-request, review-complete, ack, error, info, question]
 handles: [steve, claude-code, codex]
 ---
@@ -129,7 +129,7 @@ extended kind vocabulary with meanings.
   (`claude-code-cachy`), not protocol.
 - **Humans are first-class peers.** A human joins with a handle like any agent
   and participates with `provider: human` (§7) — from a CLI agent session, the
-  `swarmpost` wrapper, or a bare editor and git.
+  `crosstalk` wrapper, or a bare editor and git.
 
 ### 5.1 `profile.md` — the inert launch recipe
 
@@ -152,13 +152,13 @@ Free prose: what this handle is for, house conventions, anything a peer or
 future operator should know.
 ```
 
-**Spec law: swarmpost records how peers are launched; it never launches them.**
+**Spec law: crosstalk records how peers are launched; it never launches them.**
 
 - `env` lists variable **names only**. Secrets never appear on the wire.
 - `provider`/`model` here are documentation of convention, not binding — the
   authoritative provenance for any given message is its own frontmatter (§7),
   and a handle may send from different models across messages (§5).
-- The CLI MAY offer `swarmpost profile <handle> --print-cmd`, which **prints**
+- The CLI MAY offer `crosstalk profile <handle> --print-cmd`, which **prints**
   the assembled command for the operator's shell to run. Printing is inert;
   executing is not, and the CLI never executes it (§2, §14).
 - `profile.md` is optional. A handle with no profile is a fully valid peer.
@@ -230,7 +230,7 @@ the queue in delivery order). Sender suffix makes `grep -l` triage instant.
 
 | Act            | Git operation                                            |
 |----------------|----------------------------------------------------------|
-| Compose        | write file in local staging (untracked; e.g. `.swarmpost/tmp/`) |
+| Compose        | write file in local staging (untracked; e.g. `.crosstalk/tmp/`) |
 | Send           | add file at `<recipient>/inbox/new/` + commit            |
 | Hand to relay  | `push` (pull --rebase first; retry on rejection)         |
 | Receive        | `fetch` + fast-forward the mail worktree                 |
@@ -308,23 +308,23 @@ Mail never wedges an inbox:
 ## 14. CLI surface (v1 wrapper — thin, optional)
 
 The protocol MUST remain usable with bare git + an editor. The CLI is sugar —
-binary name `swarmpost`, conventional alias `sp`:
+binary name `crosstalk`, conventional alias `sp`:
 
 ```
-swarmpost init            # create orphan mail branch + worktree + manifest
-swarmpost join <handle>   # commit mailbox skeleton + manifest entry
-swarmpost send <to> --kind <k> --subject <s> [--thread <id>] [--ref <id>…] [-m <body> | -f file.md]
-swarmpost inbox [--new]   # list; ULID order; subjects shown
-swarmpost read <id|--all> # print + rename new/ → cur/ + commit
-swarmpost reply <id> [-m …]
-swarmpost claim <id>
-swarmpost ack <id>
-swarmpost sync            # fetch/rebase/push the mail branch
-swarmpost profile <handle> [--print-cmd]   # show profile; optionally emit launch command (never runs it)
+crosstalk init            # create orphan mail branch + worktree + manifest
+crosstalk join <handle>   # commit mailbox skeleton + manifest entry
+crosstalk send <to> --kind <k> --subject <s> [--thread <id>] [--ref <id>…] [-m <body> | -f file.md]
+crosstalk inbox [--new]   # list; ULID order; subjects shown
+crosstalk read <id|--all> # print + rename new/ → cur/ + commit
+crosstalk reply <id> [-m …]
+crosstalk claim <id>
+crosstalk ack <id>
+crosstalk sync            # fetch/rebase/push the mail branch
+crosstalk profile <handle> [--print-cmd]   # show profile; optionally emit launch command (never runs it)
 ```
 
 **Identity, not behavior.** The CLI resolves *who it is acting as* from
-`SWARMPOST_HANDLE` (env var) or a `handle:` line in local untracked config —
+`CROSSTALK_HANDLE` (env var) or a `handle:` line in local untracked config —
 identity selection is the CLI's only runtime configuration concern, plus at
 most a worktree path override. The CLI carries **no per-handle system prompts
 and performs no agent launching or supervision**. Launch recipes live in
@@ -338,5 +338,5 @@ implementation details, not protocol.
 
 ---
 
-*v0.5.0-draft — 2026-08-05. Lineage: swarmpost replaces Crosstalk
+*v0.5.0-draft — 2026-08-05. Lineage: crosstalk replaces Crosstalk
 (`cordfuse/crosstalk`, archived) — same wire, no runtime.*

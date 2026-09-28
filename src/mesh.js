@@ -1,6 +1,6 @@
 // mesh.js — resolve the repo, materialize the hidden `mail` worktree (§3),
 // and read mesh state (roster, identity). No mesh content ever lives on the
-// code branch; it lives on `mail`, checked out under .swarmpost/worktree/.
+// code branch; it lives on `mail`, checked out under .crosstalk/worktree/.
 
 import { existsSync, mkdirSync, readFileSync } from 'fs';
 import { join } from 'path';
@@ -9,23 +9,23 @@ import { parseMessage } from './envelope.js';
 
 export const MAIL_BRANCH = 'mail';
 
-// Locate the mesh repo. Precedence: explicit override (--mesh) > SWARMPOST_MESH
+// Locate the mesh repo. Precedence: explicit override (--mesh) > CROSSTALK_MESH
 // env > the current working directory. The override lets `sp` run from anywhere
 // — e.g. from inside a code repo you're editing — without cd-ing to the mesh.
 export function repoRoot(override) {
-  const dir = override || process.env.SWARMPOST_MESH || undefined;
+  const dir = override || process.env.CROSSTALK_MESH || undefined;
   const r = git(['rev-parse', '--show-toplevel'], dir);
   if (r.status !== 0) {
     throw new Error(dir
-      ? `--mesh/SWARMPOST_MESH is not a git repository: ${dir}`
-      : 'not inside a git repository — cd into your mesh, or pass --mesh <dir> / set SWARMPOST_MESH');
+      ? `--mesh/CROSSTALK_MESH is not a git repository: ${dir}`
+      : 'not inside a git repository — cd into your mesh, or pass --mesh <dir> / set CROSSTALK_MESH');
   }
   return r.stdout;
 }
 
 export function paths(override) {
   const root = repoRoot(override);
-  const sp = join(root, '.swarmpost');
+  const sp = join(root, '.crosstalk');
   return {
     root,
     sp,
@@ -65,7 +65,7 @@ export function ensureWorktree(p, { create = false } = {}) {
     gitOk(['branch', MAIL_BRANCH, rootCommit], p.root);
     gitOk(['worktree', 'add', '-q', p.worktree, MAIL_BRANCH], p.root);
   } else {
-    throw new Error(`no '${MAIL_BRANCH}' branch — run \`swarmpost init\` first`);
+    throw new Error(`no '${MAIL_BRANCH}' branch — run \`crosstalk init\` first`);
   }
 }
 
@@ -100,12 +100,12 @@ export function knownKinds(p) {
 
 // ── identity (§14) ───────────────────────────────────────────────────
 export function whoami(p) {
-  if (process.env.SWARMPOST_HANDLE) return process.env.SWARMPOST_HANDLE;
+  if (process.env.CROSSTALK_HANDLE) return process.env.CROSSTALK_HANDLE;
   if (existsSync(p.config)) {
     const m = readFileSync(p.config, 'utf8').match(/^\s*handle:\s*(\S+)/m);
     if (m) return m[1];
   }
-  throw new Error('no handle — set SWARMPOST_HANDLE or run `swarmpost join <handle>`');
+  throw new Error('no handle — set CROSSTALK_HANDLE or run `crosstalk join <handle>`');
 }
 
 const HANDLE_RE = /^[a-z0-9][a-z0-9-]{1,31}$/;

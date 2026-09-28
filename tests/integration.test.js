@@ -11,7 +11,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseMessage } from '../src/envelope.js';
 
-const BIN = join(dirname(fileURLToPath(import.meta.url)), '..', 'bin', 'swarmpost.js');
+const BIN = join(dirname(fileURLToPath(import.meta.url)), '..', 'bin', 'crosstalk.js');
 const GITENV = {
   GIT_AUTHOR_NAME: 't', GIT_AUTHOR_EMAIL: 't@t',
   GIT_COMMITTER_NAME: 't', GIT_COMMITTER_EMAIL: 't@t',
@@ -21,7 +21,7 @@ function git(cwd, args) {
   const r = spawnSync('git', args, { cwd, encoding: 'utf8', env: { ...process.env, ...GITENV } });
   return { status: r.status, stdout: (r.stdout || '').trim(), stderr: (r.stderr || '').trim() };
 }
-// run the CLI in `cwd`; identity comes from that clone's .swarmpost/config
+// run the CLI in `cwd`; identity comes from that clone's .crosstalk/config
 function sp(cwd, args) {
   const r = spawnSync('node', [BIN, ...args], { cwd, encoding: 'utf8', env: { ...process.env, ...GITENV } });
   return { status: r.status, stdout: (r.stdout || '').trim(), stderr: (r.stderr || '').trim() };
@@ -43,7 +43,7 @@ test('full loop: init, join, send, inbox, read/receipt, reply', () => {
 
   assert.equal(sp(A, ['init']).status, 0, 'init');
   assert.equal(sp(A, ['join', 'steve']).status, 0, 'A joins steve');
-  assert.ok(existsSync(join(A, '.swarmpost', 'config')), 'identity persisted locally');
+  assert.ok(existsSync(join(A, '.crosstalk', 'config')), 'identity persisted locally');
   assert.equal(sp(B, ['join', 'claude-code']).status, 0, 'B joins claude-code');
 
   // A (steve) sends a task to claude-code
@@ -90,7 +90,7 @@ test('conflict-freedom: concurrent sends to the SAME inbox merge clean', () => {
   sp(A, ['init']); sp(A, ['join', 'steve']); sp(B, ['join', 'claude-code']);
 
   // both machines diverge from the same base, each adds a distinct message
-  const wtA = join(A, '.swarmpost', 'worktree'), wtB = join(B, '.swarmpost', 'worktree');
+  const wtA = join(A, '.crosstalk', 'worktree'), wtB = join(B, '.crosstalk', 'worktree');
   for (const wt of [wtA, wtB]) { git(wt, ['fetch', '-q', 'origin', 'mail']); git(wt, ['reset', '-q', '--hard', 'origin/mail']); }
   const box = (wt) => join(wt, 'agents', 'claude-code', 'inbox', 'new');
   writeFileSync(join(box(wtA), '01AAA.steve.md'), '---\nid: 01AAA\nfrom: steve\nto: claude-code\n---\nA\n');
@@ -130,13 +130,13 @@ test('reply de-dupes references when the parent id is re-added via --ref (B2)', 
   assert.deepEqual(data.references, [id], 'parent id appears exactly once');
 });
 
-test('--mesh / SWARMPOST_MESH let sp run from outside the mesh dir (cross-repo)', () => {
+test('--mesh / CROSSTALK_MESH let sp run from outside the mesh dir (cross-repo)', () => {
   const { root, A, B } = setup();
   sp(A, ['init']); sp(A, ['join', 'steve']); sp(B, ['join', 'claude-code']);
   sp(A, ['send', 'claude-code', '--kind', 'task', '-m', 'hi']);
   // `root` holds relay.git + clones but is NOT itself a checkout — a stand-in for
   // "some other repo you're working in". Without an override, sp can't find a mesh here.
-  const env = { ...process.env, ...GITENV, SWARMPOST_HANDLE: 'claude-code' };
+  const env = { ...process.env, ...GITENV, CROSSTALK_HANDLE: 'claude-code' };
   const bare = spawnSync('node', [BIN, 'inbox'], { cwd: root, encoding: 'utf8', env });
   assert.notEqual(bare.status, 0, 'no override from a foreign cwd fails');
 
@@ -144,8 +144,8 @@ test('--mesh / SWARMPOST_MESH let sp run from outside the mesh dir (cross-repo)'
   assert.equal(viaFlag.status, 0, '--mesh resolves the mesh from a foreign cwd');
   assert.match(viaFlag.stdout, /\[task\] steve/);
 
-  const viaEnv = spawnSync('node', [BIN, 'inbox'], { cwd: root, encoding: 'utf8', env: { ...env, SWARMPOST_MESH: B } });
-  assert.equal(viaEnv.status, 0, 'SWARMPOST_MESH resolves the mesh from a foreign cwd');
+  const viaEnv = spawnSync('node', [BIN, 'inbox'], { cwd: root, encoding: 'utf8', env: { ...env, CROSSTALK_MESH: B } });
+  assert.equal(viaEnv.status, 0, 'CROSSTALK_MESH resolves the mesh from a foreign cwd');
   assert.match(viaEnv.stdout, /\[task\] steve/);
 });
 
@@ -160,7 +160,7 @@ test('init scaffolds AGENTS.md + SPEC.md + README.md, create-if-missing (no clob
   assert.match(readFileSync(join(A, 'AGENTS.md'), 'utf8'), /MY OWN AGENTS FILE/, 'existing AGENTS.md untouched');
   // SPEC.md copied from the package, with protocol content
   assert.ok(existsSync(join(A, 'SPEC.md')), 'SPEC.md scaffolded');
-  assert.match(readFileSync(join(A, 'SPEC.md'), 'utf8'), /swarmpost/i);
+  assert.match(readFileSync(join(A, 'SPEC.md'), 'utf8'), /crosstalk/i);
   // README.md created
   assert.ok(existsSync(join(A, 'README.md')), 'README.md scaffolded');
 });
@@ -179,11 +179,11 @@ test('init --remote bootstraps a fresh repo from an empty folder; bare init stil
   assert.equal(git(M, ['remote', 'get-url', 'origin']).stdout, relay, 'origin wired');
   assert.notEqual(git(M, ['ls-remote', relay, 'mail']).stdout, '', 'mail branch pushed');
 
-  // bare `sp init` in a non-repo still errors, and points at --remote
+  // bare `ct init` in a non-repo still errors, and points at --remote
   const N = join(root, 'empty2'); mkdirSync(N);
   const bad = sp(N, ['init']);
   assert.notEqual(bad.status, 0, 'bare init in a non-repo errors');
-  assert.match(bad.stderr, /--remote/, 'hints at sp init --remote');
+  assert.match(bad.stderr, /--remote/, 'hints at ct init --remote');
 });
 
 test('init --remote wires origin from a fresh repo, and refuses to clobber a different one', () => {
@@ -260,7 +260,7 @@ test('claim-race: N concurrent claims all deliver, one deterministic winner (SPE
   const N = 5;
   sp(A, ['init']); sp(A, ['join', 'steve']);
   const racers = Array.from({ length: N }, (_, i) => `r${i + 1}`);
-  const envFor = (r) => ({ ...process.env, ...GITENV, SWARMPOST_HANDLE: r });
+  const envFor = (r) => ({ ...process.env, ...GITENV, CROSSTALK_HANDLE: r });
   for (const r of racers) spawnSync('node', [BIN, 'join', r], { cwd: A, encoding: 'utf8', env: envFor(r) });
 
   // steve posts ONE contested task; every racer will claim THIS id

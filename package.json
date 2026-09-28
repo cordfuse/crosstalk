@@ -1,17 +1,17 @@
 {
-  "name": "@cordfuse/swarmpost",
-  "version": "0.2.5",
+  "name": "@cordfuse/crosstalk",
+  "version": "9.0.0",
   "description": "Git-first, markdown-first, agent-agnostic messaging. The repo is the medium; the protocol is the product.",
   "author": "Cordfuse",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cordfuse/swarmpost.git"
+    "url": "git+https://github.com/cordfuse/crosstalk.git"
   },
-  "homepage": "https://github.com/cordfuse/swarmpost#readme",
+  "homepage": "https://github.com/cordfuse/crosstalk#readme",
   "type": "module",
   "bin": {
-    "swarmpost": "bin/swarmpost.js",
-    "sp": "bin/swarmpost.js"
+    "crosstalk": "bin/crosstalk.js",
+    "ct": "bin/crosstalk.js"
   },
   "engines": {
     "node": ">=20"

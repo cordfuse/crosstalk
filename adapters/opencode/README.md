@@ -8,7 +8,7 @@ runs `sp`, so no bespoke hook is needed.
 - Non-interactive runs need `opencode run --auto` (auto-approve tool
   permissions) — without it, opencode blocks on approval that never comes.
 - Feed `</dev/null` on stdin for headless runs so nothing waits on input.
-- Sandboxed writes are handled by [option B](../../SPEC.md) (`sp flush` at the
+- Sandboxed writes are handled by [option B](../../SPEC.md) (`ct flush` at the
   edge) like any other agent.
 - **Use a provider that streams.** opencode's google provider reads its key from
   `GOOGLE_GENERATIVE_AI_API_KEY` (not `GEMINI_API_KEY`) — alias it if needed:
@@ -16,12 +16,12 @@ runs `sp`, so no bespoke hook is needed.
 
 ## UAT note (2026-08-05) — proven headless; watch the provider, not opencode
 
-`opencode run` (non-interactive) drives the **full swarmpost loop autonomously**
-— `sp inbox` → `sp read` → compute → `sp reply` — verified end-to-end with
+`opencode run` (non-interactive) drives the **full crosstalk loop autonomously**
+— `ct inbox` → `ct read` → compute → `ct reply` — verified end-to-end with
 `-m google/gemini-2.5-flash` in ~10s.
 
 Earlier runs *appeared* to hang, but it was **per-model provider health**, not
-opencode and not swarmpost. Verified end-to-end headless: `kimi-k2.7-code`,
+opencode and not crosstalk. Verified end-to-end headless: `kimi-k2.7-code`,
 `glm-5.2`, and `google/gemini-2.5-flash` all drive the full loop. What actually
 went wrong, model by model, confirmed by probing the gateway
 (`https://opencode.ai/zen/go/v1/chat/completions`) directly:

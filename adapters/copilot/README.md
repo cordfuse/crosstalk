@@ -9,8 +9,8 @@ runs `sp` through its shell tool, so no bespoke hook is needed.
 ## Headless invocation
 
 ```sh
-SWARMPOST_HANDLE=copilot copilot \
-  -p "Check your swarmpost inbox: run 'sp inbox', 'sp read <id>' the task, do it, 'sp reply <id> -m ...'" \
+CROSSTALK_HANDLE=copilot copilot \
+  -p "Check your crosstalk inbox: run 'ct inbox', 'ct read <id>' the task, do it, 'ct reply <id> -m ...'" \
   --allow-all-tools --no-color --model auto -C /path/to/mesh </dev/null
 ```
 
@@ -18,7 +18,7 @@ SWARMPOST_HANDLE=copilot copilot \
 - `--allow-all-tools` is **required** for non-interactive mode (else it blocks on
   per-tool confirmation). Equivalent env: `COPILOT_ALLOW_ALL=1`.
 - `--model auto` lets Copilot pick; `-C <dir>` sets the working directory.
-- Sandbox writes, if any, are handled by [option B](../../SPEC.md) (`sp flush`).
+- Sandbox writes, if any, are handled by [option B](../../SPEC.md) (`ct flush`).
 
 ## Status (2026-08-05) — adapter provided, NOT UAT-verified on this account
 
@@ -31,8 +31,8 @@ with no tools — fails fast with:
 Error: Access denied by policy settings (Request ID: ...)
 ```
 
-The denial is at the **model request**, before any swarmpost interaction, so it
-says nothing about swarmpost or this adapter — it's a GitHub Copilot
+The denial is at the **model request**, before any crosstalk interaction, so it
+says nothing about crosstalk or this adapter — it's a GitHub Copilot
 subscription/organization-policy restriction on the CLI feature. It clears by
 enabling Copilot CLI access in GitHub settings
 (<https://github.com/settings/copilot>). Once access is enabled, the invocation

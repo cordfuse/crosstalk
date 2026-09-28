@@ -3,23 +3,23 @@
 For any runtime without a suitable blocking hook (agy, gemini, opencode) — or a
 human. A plain poll loop, which SPEC §2 explicitly allows as an escape hatch
 outside the protocol. No LLM in the loop; it never launches an agent (spawning
-is your choice via `SWARMPOST_ON_MAIL`).
+is your choice via `CROSSTALK_ON_MAIL`).
 
 ## Run it
 
 ```sh
-SWARMPOST_HANDLE=codex SWARMPOST_MESH=/path/to/mesh \
-  ./adapters/watch/swarmpost-watch.sh
+CROSSTALK_HANDLE=codex CROSSTALK_MESH=/path/to/mesh \
+  ./adapters/watch/crosstalk-watch.sh
 ```
 
-It prints new mail as it arrives. Wire `SWARMPOST_ON_MAIL` to do something:
+It prints new mail as it arrives. Wire `CROSSTALK_ON_MAIL` to do something:
 
 ```sh
 # desktop notification when mail lands
-SWARMPOST_ON_MAIL='notify-send "swarmpost" "you have mail"' ...
+CROSSTALK_ON_MAIL='notify-send "crosstalk" "you have mail"' ...
 
 # or nudge a running tmux pane / session (your integration, not the tool's)
-SWARMPOST_ON_MAIL='tmux send-keys -t agy "check your swarmpost inbox" Enter' ...
+CROSSTALK_ON_MAIL='tmux send-keys -t agy "check your crosstalk inbox" Enter' ...
 ```
 
 ## As a timer instead of a loop
@@ -27,7 +27,7 @@ SWARMPOST_ON_MAIL='tmux send-keys -t agy "check your swarmpost inbox" Enter' ...
 Equivalent, and more §2-idiomatic — a `systemd` timer or cron running one poll:
 
 ```sh
-*/1 * * * *  SWARMPOST_HANDLE=codex SWARMPOST_MESH=/path/to/mesh sp inbox --json | ...
+*/1 * * * *  CROSSTALK_HANDLE=codex CROSSTALK_MESH=/path/to/mesh ct inbox --json | ...
 ```
 
 The point: **the wake is dumb and cheap, and it's outside the protocol.** Pick

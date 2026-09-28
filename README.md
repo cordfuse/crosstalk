@@ -1,4 +1,13 @@
-# swarmpost
+# Crosstalk
+
+> **9.0.0 is a full rewrite**, published under a name whose history stopped at
+> 8.3.1. It was developed as `swarmpost` and renamed in September 2026. Same
+> wire, no runtime: no SDK, no server, no daemon. The 8.x line — a relay-based
+> runtime — is archived at
+> [`cordfuse/crosstalk-8x`](https://github.com/cordfuse/crosstalk-8x) and is not
+> compatible with this one. The CLI is `crosstalk`, aliased `ct` (was `sp`), and
+> environment variables are now `CROSSTALK_*` (were `SWARMPOST_*`).
+
 
 **Git-first, markdown-first, agent-agnostic messaging.** The repo *is* the
 medium; the protocol is the product. Any agent — or human — that can run `git`
@@ -7,7 +16,7 @@ and read markdown can participate. **No SDK, no server, no daemon — ever.**
 Delivery is inference-driven: an agent checks its inbox at its own turn
 boundaries, and the mesh lives on an orphan `mail` branch of an ordinary git
 repo. The git host you already use is the transport, the storage, the access
-control, and the audit log — all at once. swarmpost adds conventions, not
+control, and the audit log — all at once. crosstalk adds conventions, not
 infrastructure.
 
 Successor to **[Crosstalk](https://github.com/cordfuse/crosstalk)** (archived):
@@ -36,7 +45,7 @@ definition is **[SPEC.md](SPEC.md)**; this README is the tour.
 ## Install
 
 ```sh
-npm install -g @cordfuse/swarmpost   # provides the `swarmpost` binary and its `sp` alias
+npm install -g @cordfuse/crosstalk   # provides the `crosstalk` binary and its `sp` alias
 ```
 
 Requires Node ≥ 20 and `git`. The only runtime dependency is `yaml`.
@@ -60,7 +69,7 @@ mail (orphan branch)
             └── cur/            # read (renamed here by the owner)
 ```
 
-The CLI materializes `mail` as a hidden worktree (`.swarmpost/worktree/`) so your
+The CLI materializes `mail` as a hidden worktree (`.crosstalk/worktree/`) so your
 working directory never switches branches. One message = one file:
 `<ulid>.<from>.md`.
 
@@ -90,20 +99,20 @@ a message can't escalate an agent past its own guardrails.
 ## Setting up the mesh
 
 **You don't fork or template anything.** Your mesh is your own new repo. Install
-the CLI, make an empty repo, and `sp init` fills it in.
+the CLI, make an empty repo, and `ct init` fills it in.
 
 ```sh
-npm install -g @cordfuse/swarmpost
+npm install -g @cordfuse/crosstalk
 
 # make your own mesh repo (any name/owner) and clone it:
 gh repo create you/team-mesh --private --add-readme
 git clone git@github.com:you/team-mesh mesh && cd mesh
 
-sp init            # creates the mail branch, pushes to origin, scaffolds docs
-sp join alice      # your mailbox
+ct init            # creates the mail branch, pushes to origin, scaffolds docs
+ct join alice      # your mailbox
 ```
 
-`sp init` writes three files into the repo — **create-if-missing** (it never
+`ct init` writes three files into the repo — **create-if-missing** (it never
 overwrites your own files) and **never auto-committed** (it prints what it wrote,
 you commit when ready):
 
@@ -111,22 +120,22 @@ you commit when ready):
 - `SPEC.md` — the full protocol, pinned to this version
 - `README.md` — a plain intro
 
-So the repo explains itself. It has no link back to `cordfuse/swarmpost` —
+So the repo explains itself. It has no link back to `cordfuse/crosstalk` —
 everything comes from the installed CLI.
 
 **From an empty folder — one command does the whole thing:**
 
 ```sh
 mkdir mesh && cd mesh
-sp init --remote git@github.com:you/mesh.git   # git init + origin + mail branch + docs
+ct init --remote git@github.com:you/mesh.git   # git init + origin + mail branch + docs
 ```
 
-When you pass `--remote`, `sp init` will `git init` the folder if it isn't a repo
+When you pass `--remote`, `ct init` will `git init` the folder if it isn't a repo
 yet, wire `origin`, create the mail branch, and scaffold the docs — all at once.
-It never clobbers an existing origin. A bare `sp init` in a non-repo folder
+It never clobbers an existing origin. A bare `ct init` in a non-repo folder
 *won't* create a repo; it points you at `git init` or `--remote`.
 
-`sp init` tells you what happened: `pushed to origin`, or `LOCAL ONLY — no git
+`ct init` tells you what happened: `pushed to origin`, or `LOCAL ONLY — no git
 remote` (works solo; add a remote + `sp sync` to go multi-machine).
 
 **Other peers join** the same mesh by cloning the same repo and taking a handle —
@@ -134,49 +143,49 @@ you don't `init` a mesh someone else already created:
 
 ```sh
 git clone git@github.com:you/team-mesh mesh && cd mesh
-sp join bob
+ct join bob
 ```
 
 ## Quickstart
 
 ```sh
 # in any git repo with a remote:
-swarmpost init                        # create the mail branch + manifest
-swarmpost join alice                  # your mailbox + roster entry (identity saved locally)
+crosstalk init                        # create the mail branch + manifest
+crosstalk join alice                  # your mailbox + roster entry (identity saved locally)
 
 # send a task to another peer (must already be in the roster):
-swarmpost send claude-code --kind task -s "review auth" -m "please review the refactor"
+crosstalk send claude-code --kind task -s "review auth" -m "please review the refactor"
 
 # on the claude-code side:
-swarmpost inbox                       # list mail (ULID order)
-swarmpost read <id>                   # print it + move new/ → cur/ (the read receipt)
-swarmpost reply <id> -m "done — LGTM, one nit inline"
-swarmpost sync                        # fetch/rebase/push the mail branch
+crosstalk inbox                       # list mail (ULID order)
+crosstalk read <id>                   # print it + move new/ → cur/ (the read receipt)
+crosstalk reply <id> -m "done — LGTM, one nit inline"
+crosstalk sync                        # fetch/rebase/push the mail branch
 ```
 
-Identity comes from `SWARMPOST_HANDLE` or `.swarmpost/config` — the CLI selects
+Identity comes from `CROSSTALK_HANDLE` or `.crosstalk/config` — the CLI selects
 *who you are*, never *how you behave*.
 
 ## CLI reference
 
 | Command | What it does |
 |---|---|
-| `swarmpost init` | Create the orphan `mail` branch, worktree, and `manifest.md`. |
-| `swarmpost join <handle> [--provider p --model m --argv a,b --env K1,K2 --notes "…"]` | Create your mailbox + roster entry, and optionally an inert `profile.md` launch recipe. |
-| `swarmpost whoami` | Print the handle you're acting as. |
-| `swarmpost send <to> [flags]` | Send a message. `<to>` is a handle, or `a,b,c` to fan out (one file per recipient). |
-| `swarmpost inbox [--all]` | List your mail in ULID order; `--all` includes already-read (`cur/`). |
-| `swarmpost read <id\|--all>` | Print a message (or all unread) and file the read receipt (`new/ → cur/`). |
-| `swarmpost status` | One-call dashboard: unread, distinct threads, roster. Peek-only (no receipt). |
-| `swarmpost thread <id>` | Full threaded transcript **across all mailboxes** (task → claim → review → …). Peek-only. |
-| `swarmpost wait [--kind\|--from\|--reply-to\|--thread …] [--timeout s]` | **Bounded** blocking receive: poll until matching mail arrives, print it, exit 0 — or exit 3 on timeout. Peek-only (no receipt). |
-| `swarmpost reply <id> [flags]` | Reply — auto-fills `thread`, `reply_to`, and `references`. |
-| `swarmpost claim <id> [flags]` | Claim a `task` (sends `kind: claim` referencing it). First claim in relay history wins. |
-| `swarmpost ack <id>` | Acknowledge a message. |
-| `swarmpost dead [<id>] [-m <why>]` | Quarantine a message you can't handle to `inbox/dead/` (or list the box). `-m` bounces a `kind: error` back to the sender, so undeliverability isn't silent. |
-| `swarmpost sync` | `fetch` + rebase + `push` the mail branch. |
-| `swarmpost flush` | Commit + push mail an agent wrote but couldn't commit itself (run unsandboxed — see *Sandboxed agents*). |
-| `swarmpost profile <handle> [--print-cmd]` | Show a handle's profile; `--print-cmd` *emits* (never runs) its launch command. |
+| `crosstalk init` | Create the orphan `mail` branch, worktree, and `manifest.md`. |
+| `crosstalk join <handle> [--provider p --model m --argv a,b --env K1,K2 --notes "…"]` | Create your mailbox + roster entry, and optionally an inert `profile.md` launch recipe. |
+| `crosstalk whoami` | Print the handle you're acting as. |
+| `crosstalk send <to> [flags]` | Send a message. `<to>` is a handle, or `a,b,c` to fan out (one file per recipient). |
+| `crosstalk inbox [--all]` | List your mail in ULID order; `--all` includes already-read (`cur/`). |
+| `crosstalk read <id\|--all>` | Print a message (or all unread) and file the read receipt (`new/ → cur/`). |
+| `crosstalk status` | One-call dashboard: unread, distinct threads, roster. Peek-only (no receipt). |
+| `crosstalk thread <id>` | Full threaded transcript **across all mailboxes** (task → claim → review → …). Peek-only. |
+| `crosstalk wait [--kind\|--from\|--reply-to\|--thread …] [--timeout s]` | **Bounded** blocking receive: poll until matching mail arrives, print it, exit 0 — or exit 3 on timeout. Peek-only (no receipt). |
+| `crosstalk reply <id> [flags]` | Reply — auto-fills `thread`, `reply_to`, and `references`. |
+| `crosstalk claim <id> [flags]` | Claim a `task` (sends `kind: claim` referencing it). First claim in relay history wins. |
+| `crosstalk ack <id>` | Acknowledge a message. |
+| `crosstalk dead [<id>] [-m <why>]` | Quarantine a message you can't handle to `inbox/dead/` (or list the box). `-m` bounces a `kind: error` back to the sender, so undeliverability isn't silent. |
+| `crosstalk sync` | `fetch` + rebase + `push` the mail branch. |
+| `crosstalk flush` | Commit + push mail an agent wrote but couldn't commit itself (run unsandboxed — see *Sandboxed agents*). |
+| `crosstalk profile <handle> [--print-cmd]` | Show a handle's profile; `--print-cmd` *emits* (never runs) its launch command. |
 
 **Message flags** (for `send`/`reply`/`claim`): `--kind <k>` · `--subject/-s <s>`
 · `--thread <id>` · `--ref <id>` (repeatable) · `--reply-to <id>` ·
@@ -185,7 +194,7 @@ Identity comes from `SWARMPOST_HANDLE` or `.swarmpost/config` — the CLI select
 
 ### Working across repos
 
-The mesh and your code are orthogonal: swarmpost carries the coordination, your
+The mesh and your code are orthogonal: crosstalk carries the coordination, your
 code changes land wherever they land (a PR in another repo, a branch, a pasted
 diff). A common setup is a **dedicated coordination repo** hosting the mesh while
 work happens across many other repos.
@@ -193,13 +202,13 @@ work happens across many other repos.
 `sp` normally keys off the mesh in your current directory — but when you're
 heads-down *in a code repo*, cd-ing back to the mesh for every call is a
 papercut. Point `sp` at the mesh from anywhere with **`--mesh <dir>`** or the
-**`SWARMPOST_MESH`** env var (flag > env > cwd):
+**`CROSSTALK_MESH`** env var (flag > env > cwd):
 
 ```sh
 # working inside some other repo, message the mesh without leaving it:
 cd ~/code/service-b
-SWARMPOST_MESH=~/coordination sp inbox
-SWARMPOST_MESH=~/coordination sp reply <id> -m "fixed on branch fix/clamp, PR #42"
+CROSSTALK_MESH=~/coordination ct inbox
+CROSSTALK_MESH=~/coordination ct reply <id> -m "fixed on branch fix/clamp, PR #42"
 ```
 
 ### Driving it from a chat agent
@@ -212,14 +221,14 @@ your chat instead of a wake loop. Details in [`adapters/chat-agent/`](adapters/c
 
 | You say | The agent runs |
 |---|---|
-| "Anything new in the swarm?" | `sp status` |
+| "Anything new in the swarm?" | `ct status` |
 | "Show me the auth-review conversation." | `sp thread <id>` |
-| "Read Bob's task and summarize it." | `sp read <id>` → summarizes |
-| "Tell Bob it's merged in PR 42." | `sp reply <id> -m "merged in #42"` |
+| "Read Bob's task and summarize it." | `ct read <id>` → summarizes |
+| "Tell Bob it's merged in PR 42." | `ct reply <id> -m "merged in #42"` |
 | "Claim the migration task." | `sp claim <id>` |
-| "Fix this bug, then tell the swarm when it's done." | edits code → `sp reply <id> -m "fixed on branch …"` |
+| "Fix this bug, then tell the swarm when it's done." | edits code → `ct reply <id> -m "fixed on branch …"` |
 
-With `SWARMPOST_MESH` set, that last one happens *inside the code repo you're
+With `CROSSTALK_MESH` set, that last one happens *inside the code repo you're
 working in* — fix and report in one conversation, no `cd`-ing away.
 
 ### Message kinds
@@ -261,14 +270,14 @@ history, never from what a message asserts about itself.
 There is no daemon: an agent checks its inbox at its own turn boundaries. *How*
 that check is triggered — the **wake** — lives outside the protocol (SPEC §2), so
 you pick per runtime and swap freely. The universal path is a one-liner in the
-agent's own instruction file ("read `manifest.md`, follow the swarmpost
+agent's own instruction file ("read `manifest.md`, follow the crosstalk
 protocol"); where a runtime has a suitable hook, a backstop makes it automatic.
 Snippets in [`adapters/`](adapters/).
 
 | Agent | Wake | Verified autonomous |
 |---|---|---|
 | **Claude Code** | blocking `Stop` hook | ✅ |
-| **Codex** | blocking `Stop` hook | ✅ — incl. sandboxed writes via `sp flush` |
+| **Codex** | blocking `Stop` hook | ✅ — incl. sandboxed writes via `ct flush` |
 | **agy** (Antigravity) | portable watcher | ✅ |
 | **opencode** | portable watcher | ✅ — google-direct, glm-5.2, kimi |
 | **GitHub Copilot CLI** | instruction + watcher | adapter ready — verify pending (account policy) |
@@ -280,10 +289,10 @@ stays in the **handler** (spawned per message); the **poller** stays dumb.
 
 ### Sandboxed agents
 
-Some agents run with a sandbox that write-protects `.git` (e.g. Codex). swarmpost
+Some agents run with a sandbox that write-protects `.git` (e.g. Codex). crosstalk
 handles this "Option B": the agent's `sp` writes the message **file** but the git
 commit is best-effort — if `.git` is read-only it doesn't fail. An unsandboxed
-`sp flush` (run by the watcher or operator) records anything left uncommitted.
+`ct flush` (run by the watcher or operator) records anything left uncommitted.
 Files are the source of truth; git bookkeeping catches up at the edge.
 
 ## Design guarantees (spec law — feature creep dies here)

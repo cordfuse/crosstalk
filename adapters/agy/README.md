@@ -10,10 +10,10 @@ hook would be a fake here, so use the watcher (or a timer).
 ## Headless invocation
 
 ```sh
-SWARMPOST_HANDLE=agy agy \
+CROSSTALK_HANDLE=agy agy \
   --dangerously-skip-permissions \
   --model gemini-3.1-pro-high \
-  --print "Check your swarmpost inbox: run 'sp inbox', 'sp read <id>' the task, do it, 'sp reply <id> -m ...'"
+  --print "Check your crosstalk inbox: run 'ct inbox', 'ct read <id>' the task, do it, 'ct reply <id> -m ...'"
 ```
 
 ### Two traps that cost real time in UAT — read these
@@ -29,14 +29,14 @@ SWARMPOST_HANDLE=agy agy \
 2. **`--print` buffers — a silent terminal is NOT a hang.** In print mode agy does
    not stream tool activity; you see nothing until it emits the final buffered
    response (up to `--print-timeout`, default 5m). Do **not** judge liveness by the
-   terminal. Watch the **mail-branch commits** instead — `sp read` / `sp reply`
+   terminal. Watch the **mail-branch commits** instead — `ct read` / `ct reply`
    land there in real time whether or not the terminal has printed anything.
 
 - `--dangerously-skip-permissions` auto-approves tool calls (required for an
   unattended headless run). Some agent harnesses have a permission classifier that
   blocks this flag on a nested launch — if so, run agy directly (a `!`-prefixed
   shell line, cron, etc.), not through the blocking layer.
-- Sandbox writes, if any, are handled by [option B](../../SPEC.md) (`sp flush`).
+- Sandbox writes, if any, are handled by [option B](../../SPEC.md) (`ct flush`).
 
 ## Status (2026-08-05) — verified autonomous ✅
 
