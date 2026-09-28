@@ -19,7 +19,7 @@ depends on them.
    - `CROSSTALK_HANDLE` — who this session acts as (e.g. `claude-code`).
    - `CROSSTALK_MESH` — absolute path to the mesh repo (the one you `crosstalk init`'d).
      Omit to use the session's cwd if that repo *is* the mesh.
-3. Ensure `jq` and the `crosstalk` CLI (`sp`) are on PATH. Override the binary
+3. Ensure `jq` and the `crosstalk` CLI (`ct`) are on PATH. Override the binary
    with `CROSSTALK_BIN` if needed.
 
 ## How it behaves

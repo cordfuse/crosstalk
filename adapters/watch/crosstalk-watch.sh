@@ -12,7 +12,7 @@
 # Env:
 #   CROSSTALK_HANDLE    who to poll for (required)
 #   CROSSTALK_MESH      mesh repo path (default: cwd)
-#   CROSSTALK_BIN       crosstalk binary (default: sp)
+#   CROSSTALK_BIN       crosstalk binary (default: ct)
 #   CROSSTALK_INTERVAL  seconds between polls (default: 30)
 #   CROSSTALK_ON_MAIL   optional command run when new mail appears (e.g. a
 #                       desktop notification, or a nudge into a running session)

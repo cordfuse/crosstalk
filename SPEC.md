@@ -308,7 +308,7 @@ Mail never wedges an inbox:
 ## 14. CLI surface (v1 wrapper — thin, optional)
 
 The protocol MUST remain usable with bare git + an editor. The CLI is sugar —
-binary name `crosstalk`, conventional alias `sp`:
+binary name `crosstalk`, conventional alias `ct`:
 
 ```
 crosstalk init            # create orphan mail branch + worktree + manifest

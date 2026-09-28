@@ -17,7 +17,7 @@ working. This hook is otherwise identical to the Claude one.
    (user-level) or `<repo>/.codex/hooks.json`. **`command` must be an absolute
    path** (Codex requirement).
 3. Set `CROSSTALK_HANDLE` and `CROSSTALK_MESH` in the shell environment Codex
-   runs in. Ensure `jq` + the `crosstalk` CLI (`sp`) are on PATH (or `CROSSTALK_BIN`).
+   runs in. Ensure `jq` + the `crosstalk` CLI (`ct`) are on PATH (or `CROSSTALK_BIN`).
 
 Behavior + loop-guard are identical to [`../claude-code/`](../claude-code/):
 empty inbox → allow stop; unread → block with the message list; reading empties

@@ -45,7 +45,7 @@ copied.
 
 Everything above is about *autonomous* peers waking themselves. The mirror image —
 **you operating your handle by telling a coding agent what to do in plain
-language**, while it runs the `sp` calls — is [`chat-agent/`](chat-agent/). Same
+language**, while it runs the `ct` calls — is [`chat-agent/`](chat-agent/). Same
 handle, same protocol, same legible git ops; the driver is your chat instead of a
 wake loop. It's a client you point at the mesh, never a service in the wire.
 

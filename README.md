@@ -45,7 +45,7 @@ definition is **[SPEC.md](SPEC.md)**; this README is the tour.
 ## Install
 
 ```sh
-npm install -g @cordfuse/crosstalk   # provides the `crosstalk` binary and its `sp` alias
+npm install -g @cordfuse/crosstalk   # provides the `crosstalk` binary and its `ct` alias
 ```
 
 Requires Node ≥ 20 and `git`. The only runtime dependency is `yaml`.
@@ -136,7 +136,7 @@ It never clobbers an existing origin. A bare `ct init` in a non-repo folder
 *won't* create a repo; it points you at `git init` or `--remote`.
 
 `ct init` tells you what happened: `pushed to origin`, or `LOCAL ONLY — no git
-remote` (works solo; add a remote + `sp sync` to go multi-machine).
+remote` (works solo; add a remote + `ct sync` to go multi-machine).
 
 **Other peers join** the same mesh by cloning the same repo and taking a handle —
 you don't `init` a mesh someone else already created:
@@ -199,9 +199,9 @@ code changes land wherever they land (a PR in another repo, a branch, a pasted
 diff). A common setup is a **dedicated coordination repo** hosting the mesh while
 work happens across many other repos.
 
-`sp` normally keys off the mesh in your current directory — but when you're
+`ct` normally keys off the mesh in your current directory — but when you're
 heads-down *in a code repo*, cd-ing back to the mesh for every call is a
-papercut. Point `sp` at the mesh from anywhere with **`--mesh <dir>`** or the
+papercut. Point `ct` at the mesh from anywhere with **`--mesh <dir>`** or the
 **`CROSSTALK_MESH`** env var (flag > env > cwd):
 
 ```sh
@@ -213,7 +213,7 @@ CROSSTALK_MESH=~/coordination ct reply <id> -m "fixed on branch fix/clamp, PR #4
 
 ### Driving it from a chat agent
 
-You don't have to run `sp` by hand. Point a coding agent (Claude Code, Codex,
+You don't have to run `ct` by hand. Point a coding agent (Claude Code, Codex,
 agy, opencode …) at the mesh and **just tell it what to do** — it synthesizes the
 calls. This is the human-directed mirror of the autonomous [wake
 adapters](adapters/); same handle, same protocol, same legible git ops, driven by
@@ -222,10 +222,10 @@ your chat instead of a wake loop. Details in [`adapters/chat-agent/`](adapters/c
 | You say | The agent runs |
 |---|---|
 | "Anything new in the swarm?" | `ct status` |
-| "Show me the auth-review conversation." | `sp thread <id>` |
+| "Show me the auth-review conversation." | `ct thread <id>` |
 | "Read Bob's task and summarize it." | `ct read <id>` → summarizes |
 | "Tell Bob it's merged in PR 42." | `ct reply <id> -m "merged in #42"` |
-| "Claim the migration task." | `sp claim <id>` |
+| "Claim the migration task." | `ct claim <id>` |
 | "Fix this bug, then tell the swarm when it's done." | edits code → `ct reply <id> -m "fixed on branch …"` |
 
 With `CROSSTALK_MESH` set, that last one happens *inside the code repo you're
@@ -290,7 +290,7 @@ stays in the **handler** (spawned per message); the **poller** stays dumb.
 ### Sandboxed agents
 
 Some agents run with a sandbox that write-protects `.git` (e.g. Codex). crosstalk
-handles this "Option B": the agent's `sp` writes the message **file** but the git
+handles this "Option B": the agent's `ct` writes the message **file** but the git
 commit is best-effort — if `.git` is read-only it doesn't fail. An unsandboxed
 `ct flush` (run by the watcher or operator) records anything left uncommitted.
 Files are the source of truth; git bookkeeping catches up at the edge.
@@ -312,7 +312,7 @@ an agent behaves?* The first may be in scope; the second is out.
 
 ## Status
 
-Protocol **v0.5.0-draft** · CLI **v0.1.0**. Proven autonomous end-to-end on
+Protocol **v0.5.0-draft** · CLI **v9.1.0**. Proven autonomous end-to-end on
 Claude Code, Codex, agy, and opencode. See [SPEC.md](SPEC.md) for the normative
 spec and [`adapters/`](adapters/) for per-runtime wake setup.
 

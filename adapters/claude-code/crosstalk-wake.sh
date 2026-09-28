@@ -11,7 +11,7 @@
 # Env:
 #   CROSSTALK_HANDLE   who this session acts as (required, or the hook no-ops)
 #   CROSSTALK_MESH     path to the mesh repo (default: the session's cwd)
-#   CROSSTALK_BIN      crosstalk binary (default: sp)
+#   CROSSTALK_BIN      crosstalk binary (default: ct)
 #
 # Loop-guard: the Stop-hook contract has no stop_hook_active flag, so we build
 # our own. Reading mail moves it new/ -> cur/, so the inbox empties and the next

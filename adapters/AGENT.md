@@ -19,7 +19,7 @@ bare git — no tool needed:
 
 ## Setup
 
-- Make `sp` available and set `CROSSTALK_HANDLE` (confirm with `ct whoami`).
+- Make `ct` available and set `CROSSTALK_HANDLE` (confirm with `ct whoami`).
   `CROSSTALK_MESH` points the CLI at the mesh repo if it isn't your cwd.
 - Optionally add the [Stop hook](claude-code/) (Claude) / [Codex hook](codex/) /
   [watcher](watch/) so the inbox check fires automatically when the model forgets.

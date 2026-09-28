@@ -4,7 +4,7 @@ GitHub Copilot CLI (`copilot`, v1.0.71) participates like any peer: the
 **instruction path** — a one-liner in its `AGENTS.md` pointing at the mesh's
 `manifest.md` + the protocol — plus the [portable watcher](../watch/) for the
 wake. Copilot reads `AGENTS.md` natively (unless `--no-custom-instructions`) and
-runs `sp` through its shell tool, so no bespoke hook is needed.
+runs `ct` through its shell tool, so no bespoke hook is needed.
 
 ## Headless invocation
 

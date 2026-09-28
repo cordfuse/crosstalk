@@ -3,7 +3,7 @@
 OpenCode participates like any peer: the **instruction path** (a one-liner in
 its `AGENTS.md` pointing at the mesh's `manifest.md` + the protocol) plus the
 [portable watcher](../watch/) for the wake. It reads `AGENTS.md` natively and
-runs `sp`, so no bespoke hook is needed.
+runs `ct`, so no bespoke hook is needed.
 
 - Non-interactive runs need `opencode run --auto` (auto-approve tool
   permissions) — without it, opencode blocks on approval that never comes.
