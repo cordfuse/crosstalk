@@ -4,10 +4,19 @@
 // behavior: it never launches or supervises an agent.
 
 import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import { paths } from '../src/mesh.js';
 import * as ops from '../src/ops.js';
 
-const USAGE = `crosstalk — git-first, markdown-first agent messaging
+const VERSION = (() => {
+  try {
+    const here = dirname(fileURLToPath(import.meta.url));
+    return JSON.parse(readFileSync(join(here, '..', 'package.json'), 'utf8')).version;
+  } catch { return 'unknown'; }
+})();
+
+const USAGE = `crosstalk ${VERSION} — git-first, markdown-first agent messaging
 
   crosstalk init [--remote <url>]    create the orphan mail branch + manifest (--remote wires origin)
   crosstalk join <handle> [--provider p --model m --argv a,b --env KEY1,KEY2 --notes "..."]
@@ -65,6 +74,7 @@ function parse(argv) {
       case '-m': flags.body = take(); break;
       case '-f': flags.file = take(); break;
       case '-h': case '--help': flags.help = true; break;
+      case '-v': case '--version': flags.version = true; break;
       default: flags._.push(a);
     }
   }
@@ -84,10 +94,10 @@ function out(flags, human, obj) {
 
 // A message committed locally but not pushed is NOT visible to peers yet. Never
 // let that pass silently — warn (human mode) so it isn't mistaken for delivered.
-// (--json already carries `pushed`.) Not an error: `sp sync` will deliver it.
+// (--json already carries `pushed`.) Not an error: `ct sync` will deliver it.
 function warnIfLocal(flags, r) {
   if (r && r.pushed === false && !flags.json) {
-    process.stderr.write("note: committed locally but NOT delivered to the relay yet — run 'sp sync' to deliver\n");
+    process.stderr.write("note: committed locally but NOT delivered to the relay yet — run 'ct sync' to deliver\n");
   }
 }
 
@@ -103,6 +113,7 @@ function sendOpts(flags) {
 async function main() {
   const flags = parse(process.argv.slice(2));
   const verb = flags._[0];
+  if (flags.version) { process.stdout.write(VERSION + '\n'); process.exit(0); }
   if (!verb || flags.help) { process.stdout.write(USAGE + '\n'); process.exit(verb ? 0 : 1); }
 
   // `ct init --remote <url>` can bootstrap a fresh repo (clear intent). A bare
@@ -121,7 +132,7 @@ async function main() {
     case 'init': {
       const r = ops.init(p, { remote: flags.remote });
       const where = r.pushed ? 'pushed to origin'
-        : r.hasRemote ? 'LOCAL ONLY — push failed; run `sp sync` to deliver'
+        : r.hasRemote ? 'LOCAL ONLY — push failed; run `ct sync` to deliver'
         : 'LOCAL ONLY — no git remote; add one (git remote add origin <url>) to reach other machines';
       out(flags, `${createdRepo ? 'Created a new git repo. ' : ''}Initialized mesh on '${r.branch}' branch (${where}).`, { ...r, createdRepo });
       if (r.scaffolded?.length && !flags.json) process.stdout.write(`Scaffolded (review + commit): ${r.scaffolded.join(', ')}\n`);
