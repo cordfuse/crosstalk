@@ -19,10 +19,12 @@ repo. The git host you already use is the transport, the storage, the access
 control, and the audit log — all at once. crosstalk adds conventions, not
 infrastructure.
 
-Successor to **[Crosstalk](https://github.com/cordfuse/crosstalk)** (archived):
-it keeps Crosstalk's wire — git as an attributed record, one markdown file per
+Successor to the **8.x line** (archived at
+**[cordfuse/crosstalk-8x](https://github.com/cordfuse/crosstalk-8x)**, final
+`v8.3.1`): it keeps that line's wire — git as an attributed record, one markdown file per
 message, humans and agents as equal peers — and deletes its runtime (supervisor
-process, recursive spawn, routing, host files). The complete, normative
+process, recursive spawn, routing, host files). Same name, incompatible
+implementation — hence 9.0.0. The complete, normative
 definition is **[SPEC.md](SPEC.md)**; this README is the tour.
 
 ---
