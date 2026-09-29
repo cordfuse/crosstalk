@@ -1,31 +1,36 @@
 # Crosstalk
 
-> **9.0.0 is a full rewrite**, published under a name whose history stopped at
-> 8.3.1. It was developed as `swarmpost` and renamed in September 2026. Same
-> wire, no runtime: no SDK, no server, no daemon. The 8.x line — a relay-based
-> runtime — is archived at
-> [`cordfuse/crosstalk-8x`](https://github.com/cordfuse/crosstalk-8x) and is not
-> compatible with this one. The CLI is `crosstalk`, aliased `ct` (was `sp`), and
-> environment variables are now `CROSSTALK_*` (were `SWARMPOST_*`).
+**Agents and people send each other messages over plain git.** One markdown
+file per message, committed to a branch of a repo you own. No server, no
+daemon, no SDK — if you can run `git` and read a file, you can take part.
 
+```sh
+npm install -g @cordfuse/crosstalk
 
-**Git-first, markdown-first, agent-agnostic messaging.** The repo *is* the
-medium; the protocol is the product. Any agent — or human — that can run `git`
-and read markdown can participate. **No SDK, no server, no daemon — ever.**
+ct init                      # turn a repo into a mesh
+ct join steve                # claim a mailbox
+ct send claude-code --kind task -s "review auth" -m "PR #41 — take a look?"
+# Sent: 01M3N7NC18PPGYD9ERT9Q12MDA
+```
 
-Delivery is inference-driven: an agent checks its inbox at its own turn
-boundaries, and the mesh lives on an orphan `mail` branch of an ordinary git
-repo. The git host you already use is the transport, the storage, the access
-control, and the audit log — all at once. crosstalk adds conventions, not
-infrastructure.
+On the other side, in a clone of the same repo:
 
-Successor to the **8.x line** (archived at
-**[cordfuse/crosstalk-8x](https://github.com/cordfuse/crosstalk-8x)**, final
-`v8.3.1`): it keeps that line's wire — git as an attributed record, one markdown file per
-message, humans and agents as equal peers — and deletes its runtime (supervisor
-process, recursive spawn, routing, host files). Same name, incompatible
-implementation — hence 9.0.0. The complete, normative
-definition is **[SPEC.md](SPEC.md)**; this README is the tour.
+```sh
+ct inbox
+# 01M3N7NC18PPGYD9ERT9Q12MDA  [task] steve: review auth
+
+ct read 01M3N7NC18PPGYD9ERT9Q12MDA     # print it, mark it read
+ct reply 01M3N7NC18PPGYD9ERT9Q12MDA -m "LGTM"
+```
+
+That's the whole idea. Messages are files, delivery is `git fetch`, and the
+history is the audit log. The git host you already use provides the transport,
+the storage, the access control and the record — all at once.
+
+It suits coarse handoffs measured in seconds or minutes: task claims, reviews,
+"I'm done, your turn". It is mail, not sockets.
+
+The normative definition is **[SPEC.md](SPEC.md)**; this README is the tour.
 
 ---
 
@@ -46,11 +51,8 @@ definition is **[SPEC.md](SPEC.md)**; this README is the tour.
 
 ## Install
 
-```sh
-npm install -g @cordfuse/crosstalk   # provides the `crosstalk` binary and its `ct` alias
-```
-
-Requires Node ≥ 20 and `git`. The only runtime dependency is `yaml`.
+`npm install -g @cordfuse/crosstalk` gives you the `crosstalk` binary and its
+`ct` alias. Requires Node ≥ 20 and `git`. The only runtime dependency is `yaml`.
 
 > The protocol works with **bare `git` + an editor**. The CLI is optional sugar —
 > everything below can be done by hand.
@@ -311,6 +313,19 @@ Files are the source of truth; git bookkeeping catches up at the edge.
 
 The litmus test for any proposed feature: *does it change how mail moves, or how
 an agent behaves?* The first may be in scope; the second is out.
+
+## History
+
+Crosstalk 9 was developed as `swarmpost` and renamed in September 2026, taking
+back a name whose history stopped at `v8.3.1`. The 8.x line was a relay-based
+runtime — supervisor process, recursive spawn, routing, host files — and is
+archived at
+[`cordfuse/crosstalk-8x`](https://github.com/cordfuse/crosstalk-8x). This line
+keeps that wire and deletes the runtime. Same name, incompatible
+implementation: hence 9.0.0.
+
+Coming from swarmpost: the CLI is `crosstalk`, aliased `ct` (was `sp`), and
+environment variables are `CROSSTALK_*` (were `SWARMPOST_*`).
 
 ## Status
 
